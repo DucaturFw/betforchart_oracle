@@ -5,6 +5,18 @@ import { wallet_address } from "./config";
 
 export let app = express()
 
+const INFURA_URL = `https://ropsten.infura.io/1aSntAgaf8TCPtlVomPn`
+// Require Web3 Module
+var Web3 = require('web3');
+
+function get_contract() {
+	// Show web3 where it needs to look for the Ethereum node
+	const web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/YOUR-API-TOKEN-HERE'));
+	const abi = {} // CONTRACT ABI
+	const addr = "" // CONTRACT ADDRESS
+	return new web3.eth.Contract(abi, addr);
+}
+
 app.all('*', function(req, res, next)
 {
     res.header('Access-Control-Allow-Origin', '*')
@@ -32,8 +44,13 @@ app.get("/crxs", (req, res) =>
 				let bfin = crxs;
 				if (err) console.error(err);
 				console.log('got bitfinex')
+				let mean_btc_usd = ( pol["BTCUSD"].value + hbtc["BTCUSD"].value + bfin["BTCUSD"].value ) / 3
+				let mean_eth_usd = ( pol["ETHUSD"].value + hbtc["ETHUSD"].value + bfin["ETHUSD"].value ) / 3
+				let mean_eth_btc = ( pol["ETHBTC"].value + hbtc["ETHBTC"].value + bfin["ETHBTC"].value ) / 3
+				const BetContract = get_contract();
+				BetContract.methods.setCurrency({"BTCUSD": mean_btc_usd, "ETHUSD": mean_eth_usd, "ETHBTC": mean_eth_btc}).send().then(console.log);
 				return res.json({
-					pol, hbtc, bfin
+					pol, hbtc, bfin, mean_btc_usd, mean_eth_usd, mean_eth_btc
 				})
 			});
 		});
