@@ -19,7 +19,7 @@ function create_bet(req, res) {
             bet_currency: req.body.bet_info.currency,
             bet_for_value: parseFloat(req.body.bet_info.for_value),
             bet_amount: parseFloat(req.body.bet_info.amount),
-            bet_date: parseFloat(req.body.bet_info.datetime),
+            bet_date: req.body.bet_info.datetime,
         },
         user_info: {
             email: req.body.user_info.email
