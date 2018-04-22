@@ -48,7 +48,7 @@ app.get("/crxs", (req, res) =>
 				let mean_eth_usd = ( pol["ETHUSD"]["value"] + hbtc["ETHUSD"]["value"] + bfin["ETHUSD"]["value"] ) / 3
 				let mean_eth_btc = ( pol["ETHBTC"]["value"] + hbtc["ETHBTC"]["value"] + bfin["ETHBTC"]["value"] ) / 3
 				// const BetContract = get_contract(); 
-				// BetContract.methods.setCurrency({"BTCUSD": mean_btc_usd, "ETHUSD": mean_eth_usd, "ETHBTC": mean_eth_btc}).send().then(console.log);
+				// BetContract.methods.setRate(Math.round(mean_btc_usd * 100)).send().then(console.log);
 				return res.json({
 					pol, hbtc, bfin, mean_btc_usd, mean_eth_usd, mean_eth_btc
 				})

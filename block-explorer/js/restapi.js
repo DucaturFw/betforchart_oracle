@@ -38,9 +38,7 @@ exports.app.get("/crxs", function (req, res) {
                 if (err)
                     console.error(err);
                 console.log('got bitfinex');
-                console.log(pol["BTCUSD"]["value"]);
                 var mean_btc_usd = (pol["BTCUSD"]["value"] + hbtc["BTCUSD"]["value"] + bfin["BTCUSD"]["value"]) / 3;
-                console.log(mean_btc_usd);
                 var mean_eth_usd = (pol["ETHUSD"]["value"] + hbtc["ETHUSD"]["value"] + bfin["ETHUSD"]["value"]) / 3;
                 var mean_eth_btc = (pol["ETHBTC"]["value"] + hbtc["ETHBTC"]["value"] + bfin["ETHBTC"]["value"]) / 3;
                 // const BetContract = get_contract(); 
