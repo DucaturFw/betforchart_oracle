@@ -26,7 +26,7 @@ function create_bet(req, res) {
         timestamp: Date.now(),
     }
     bet.hash = hash_order(bet);
-    console.log('Saving the order:', bet)
+    console.log('Saving the bet:', bet)
         // Save order to database
     db.save_bet(bet)
         .then(() => {

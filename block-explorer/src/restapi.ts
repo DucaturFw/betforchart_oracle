@@ -57,22 +57,6 @@ app.get("/crxs", (req, res) =>
 	});
 })
 
-interface ITransaction
-{
-	info: blinfo.rawaddr.Tx
-	tx: blinfo.rawaddr.Out | blinfo.rawaddr.Out[]
-	op_return?: { data: string, length: number }
-}
-interface IOrder
-{
-	hash: string
-	data
-}
-interface IFullOrder
-{
-	order: IOrder
-	tx: ITransaction
-}
 interface ICurrency
 {
 	name: string,

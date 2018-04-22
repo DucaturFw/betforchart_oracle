@@ -1,1 +1,1 @@
-This is an API for instastore!
+This is an API for BetChain!
