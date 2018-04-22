@@ -1,1 +1,1 @@
-This is an API for BetChain!
+This is an API for DUCATUR Betting!
