@@ -1,0 +1,25 @@
+{
+  "name": "instastore-api",
+  "version": "0.0.1",
+  "description": "THIS IS INSTASTOOOOOORE",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DucaturFw/instastore.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DucaturFw/instastore/issues"
+  },
+  "homepage": "https://github.com/DucaturFw/instastore#readme",
+  "dependencies": {
+    "deep-sort-object": "^1.0.2",
+    "express": "^4.16.3",
+    "mongodb": "^3.0.5",
+    "read-yaml": "^1.1.0"
+  }
+}

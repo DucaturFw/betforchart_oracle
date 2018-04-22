@@ -1,0 +1,78 @@
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script
+	src="https://code.jquery.com/jquery-3.2.1.min.js"
+	integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+	crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/3.8.1/superagent.min.js"></script>
+
+<!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/css/uikit.min.css" />
+<!-- UIkit JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit-icons.min.js"></script>
+
+<style>
+html, body {
+	height: 100%;
+}
+</style>
+<div id="app" class="uk-container">
+	<order-list :orders="orders"></order-list>
+</div>
+
+<script id="tmp-order-list" type="text/template">
+	<div class="order-container">
+		<ul>
+			<li v-for="order in orders">
+				<span>{{order.order.user_info.name}} ({{order.order.user_info.email}}) bought {{order.order.order_info.amount}} tickets for {{order.order.order_info.total}} BTC!</span>
+				<span v-if="order.tx != null">CONFIRMED!</span>
+				<span v-if="order.tx == null">(payment not confirmed yet)</span>
+			</li>
+		</ul>
+	</div>
+</script>
+
+
+<script>
+	function _initVue()
+	{
+		function _$comp(name, props)
+		{
+			Vue.component(name, {
+				props: props,
+				template: document.getElementById('tmp-'+name).innerText
+			});
+		}
+		_$comp('order-list', ["orders"]);
+		
+		var vm = new Vue( {
+			el: '#app',
+			data: {
+				orders: []
+			}
+		});
+		window.vm = vm;
+	}
+	function _loadOrders()
+	{
+		superagent
+			.get('/orders')
+			.end(function (err, res)
+			{
+				console.log(err);
+				console.log(res.body);
+				vm.orders = res.body.orders;
+			});
+	}
+	
+	function _init_()
+	{
+		_initVue();
+		_loadOrders();
+	}
+	
+	/////////////////////////////
+	_init_();
+	/////////////////////////////
+</script>
