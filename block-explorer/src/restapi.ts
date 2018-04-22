@@ -44,11 +44,11 @@ app.get("/crxs", (req, res) =>
 				let bfin = crxs;
 				if (err) console.error(err);
 				console.log('got bitfinex')
-				let mean_btc_usd = ( pol["BTCUSD"].value + hbtc["BTCUSD"].value + bfin["BTCUSD"].value ) / 3
-				let mean_eth_usd = ( pol["ETHUSD"].value + hbtc["ETHUSD"].value + bfin["ETHUSD"].value ) / 3
-				let mean_eth_btc = ( pol["ETHBTC"].value + hbtc["ETHBTC"].value + bfin["ETHBTC"].value ) / 3
-				const BetContract = get_contract();
-				BetContract.methods.setCurrency({"BTCUSD": mean_btc_usd, "ETHUSD": mean_eth_usd, "ETHBTC": mean_eth_btc}).send().then(console.log);
+				let mean_btc_usd = ( pol["BTCUSD"]["value"] + hbtc["BTCUSD"]["value"] + bfin["BTCUSD"]["value"] ) / 3
+				let mean_eth_usd = ( pol["ETHUSD"]["value"] + hbtc["ETHUSD"]["value"] + bfin["ETHUSD"]["value"] ) / 3
+				let mean_eth_btc = ( pol["ETHBTC"]["value"] + hbtc["ETHBTC"]["value"] + bfin["ETHBTC"]["value"] ) / 3
+				// const BetContract = get_contract(); 
+				// BetContract.methods.setCurrency({"BTCUSD": mean_btc_usd, "ETHUSD": mean_eth_usd, "ETHBTC": mean_eth_btc}).send().then(console.log);
 				return res.json({
 					pol, hbtc, bfin, mean_btc_usd, mean_eth_usd, mean_eth_btc
 				})
@@ -102,7 +102,7 @@ function getCurrencyPoloniex(callback: (error, crxs: {}) => void) {
 			([key, value]) => {
 				crxs[key] = {
 					name: key,
-					value: value.last,
+					value: parseFloat(value.last),
 					max: value.high24hr,
 					min: value.low24hr,
 				};
@@ -128,7 +128,7 @@ function getCurrencyHitbtc(callback: (error, crxs: {}) => void, symbols: string 
 				if (symbols.includes(value["symbol"]))
 					crxs[value["symbol"]] = {
 						name: value["symbol"],
-						value: value["last"],
+						value: parseFloat(value["last"]),
 						max: value["high"],
 						min: value["low"],
 					};
@@ -153,7 +153,7 @@ function getCurrencyBitfinex(callback: (error, crxs: {}) => void, symbols: strin
 			(value) => {
 				crxs[value[0].replace('t','')] = {
 					name: value[0].replace('t',''),
-					value: value[value.length - 4],
+					value: parseFloat(value[value.length - 4]),
 					max: value[value.length - 2],
 					min: value[value.length - 1],
 				};
