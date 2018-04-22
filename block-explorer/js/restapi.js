@@ -2,16 +2,25 @@
 exports.__esModule = true;
 var express = require("express");
 var agent = require("superagent");
+var _ = require("lodash");
 exports.app = express();
 var INFURA_URL = "https://ropsten.infura.io/1aSntAgaf8TCPtlVomPn";
 // Require Web3 Module
 var Web3 = require('web3');
-function get_contract() {
+function getContract() {
     // Show web3 where it needs to look for the Ethereum node
     var web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/YOUR-API-TOKEN-HERE'));
     var abi = {}; // CONTRACT ABI
     var addr = ""; // CONTRACT ADDRESS
     return new web3.eth.Contract(abi, addr);
+}
+function meanByFilterMostOutstanding(values) {
+    var meanVal = _.mean(values);
+    var diffs = values.map(function (v) { return Math.abs(v - meanVal); });
+    var indexToDrop = _.indexOf(diffs, _.max(diffs));
+    var valCopy = _.clone(values);
+    valCopy[indexToDrop] = 0;
+    return _.mean(values);
 }
 exports.app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -20,6 +29,10 @@ exports.app.all('*', function (req, res, next) {
 });
 function _err(res, err) {
     res.json({ error: err });
+}
+function getByKey(arr, key) {
+    var vals = arr.map(function (k) { return k[key]["value"]; });
+    return meanByFilterMostOutstanding(vals);
 }
 exports.app.get("/crxs", function (req, res) {
     // TODO: put data into database and make CRON job.
@@ -38,13 +51,15 @@ exports.app.get("/crxs", function (req, res) {
                 if (err)
                     console.error(err);
                 console.log('got bitfinex');
-                var mean_btc_usd = (pol["BTCUSD"]["value"] + hbtc["BTCUSD"]["value"] + bfin["BTCUSD"]["value"]) / 3;
-                var mean_eth_usd = (pol["ETHUSD"]["value"] + hbtc["ETHUSD"]["value"] + bfin["ETHUSD"]["value"]) / 3;
-                var mean_eth_btc = (pol["ETHBTC"]["value"] + hbtc["ETHBTC"]["value"] + bfin["ETHBTC"]["value"]) / 3;
-                // const BetContract = get_contract(); 
-                // BetContract.methods.setCurrency({"BTCUSD": mean_btc_usd, "ETHUSD": mean_eth_usd, "ETHBTC": mean_eth_btc}).send().then(console.log);
+                var arr = [pol, hbtc, bfin];
+                var mean_btc_usd = getByKey(arr, "BTCUSD");
+                var mean_eth_usd = getByKey(arr, "ETHUSD");
+                var mean_eth_btc = getByKey(arr, "ETHBTC");
+                var mean_ltc_btc = getByKey(arr, "LTCBTC");
+                // const BetContract = getContract(); 
+                // BetContract.methods.setRate(Math.round(mean_btc_usd * 100)).send().then(console.log);
                 return res.json({
-                    pol: pol, hbtc: hbtc, bfin: bfin, mean_btc_usd: mean_btc_usd, mean_eth_usd: mean_eth_usd, mean_eth_btc: mean_eth_btc
+                    pol: pol, hbtc: hbtc, bfin: bfin, mean_btc_usd: mean_btc_usd, mean_eth_usd: mean_eth_usd, mean_eth_btc: mean_eth_btc, mean_ltc_btc: mean_ltc_btc
                 });
             });
         });

@@ -2,6 +2,7 @@ import * as express from "express"
 import * as agent from "superagent"
 import { isOpReturn, splitOpReturn } from "./blockchain";
 import { wallet_address } from "./config";
+import * as _ from "lodash";
 
 export let app = express()
 
@@ -9,12 +10,22 @@ const INFURA_URL = `https://ropsten.infura.io/1aSntAgaf8TCPtlVomPn`
 // Require Web3 Module
 var Web3 = require('web3');
 
-function get_contract() {
+function getContract() {
 	// Show web3 where it needs to look for the Ethereum node
 	const web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/YOUR-API-TOKEN-HERE'));
 	const abi = {} // CONTRACT ABI
 	const addr = "" // CONTRACT ADDRESS
 	return new web3.eth.Contract(abi, addr);
+}
+
+function meanByFilterMostOutstanding(values) {
+	const meanVal = _.mean(values)
+	const diffs = values.map(v => Math.abs(v - meanVal))
+	const indexToDrop = _.indexOf(diffs, _.max(diffs))
+
+	const valCopy = _.clone(values)
+	valCopy[indexToDrop] = 0
+	return _.mean(values);
 }
 
 app.all('*', function(req, res, next)
@@ -29,6 +40,12 @@ function _err(res, err)
 {
 	res.json({ error: err })
 }
+
+function getByKey(arr, key) {
+	const vals = arr.map(k => k[key]["value"])
+	return meanByFilterMostOutstanding(vals)
+}
+
 app.get("/crxs", (req, res) =>
 {
 	// TODO: put data into database and make CRON job.
@@ -44,13 +61,15 @@ app.get("/crxs", (req, res) =>
 				let bfin = crxs;
 				if (err) console.error(err);
 				console.log('got bitfinex')
-				let mean_btc_usd = ( pol["BTCUSD"]["value"] + hbtc["BTCUSD"]["value"] + bfin["BTCUSD"]["value"] ) / 3
-				let mean_eth_usd = ( pol["ETHUSD"]["value"] + hbtc["ETHUSD"]["value"] + bfin["ETHUSD"]["value"] ) / 3
-				let mean_eth_btc = ( pol["ETHBTC"]["value"] + hbtc["ETHBTC"]["value"] + bfin["ETHBTC"]["value"] ) / 3
-				// const BetContract = get_contract(); 
+				const arr = [pol, hbtc, bfin]
+				let mean_btc_usd = getByKey(arr, `BTCUSD`)
+				let mean_eth_usd = getByKey(arr, `ETHUSD`)
+				let mean_eth_btc = getByKey(arr, `ETHBTC`)
+				let mean_ltc_btc = getByKey(arr, `LTCBTC`)
+				// const BetContract = getContract(); 
 				// BetContract.methods.setRate(Math.round(mean_btc_usd * 100)).send().then(console.log);
 				return res.json({
-					pol, hbtc, bfin, mean_btc_usd, mean_eth_usd, mean_eth_btc
+					pol, hbtc, bfin, mean_btc_usd, mean_eth_usd, mean_eth_btc, mean_ltc_btc
 				})
 			});
 		});
