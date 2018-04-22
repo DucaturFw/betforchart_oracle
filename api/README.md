@@ -1,1 +1,1 @@
-This is an API for DUCATUR Betting!
+This is a backend API for DUCATUR Betting!

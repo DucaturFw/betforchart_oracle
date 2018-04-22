@@ -1,7 +1,7 @@
 let read_yaml = require('read-yaml');
 
 let hash_order = require('./hash_order');
-let validate_order = require('./validate').validate_order;
+let validate_bet = require('./validate').validate_order;
 let db = require('./db');
 
 const config = read_yaml.sync('./config.yaml');
@@ -10,7 +10,7 @@ console.log('Config', config);
 
 function create_bet(req, res) {
     // Validating request info
-    if (!validate_order(req.body)) {
+    if (!validate_bet(req.body)) {
         res.status(400).send({ 'error': 'Request data is not valid.' });
     }
 
@@ -27,7 +27,7 @@ function create_bet(req, res) {
     }
     bet.hash = hash_order(bet);
     console.log('Saving the bet:', bet)
-        // Save order to database
+        // Save bet to database
     db.save_bet(bet)
         .then(() => {
             // Sending response
@@ -41,7 +41,7 @@ function create_bet(req, res) {
 
 function get_bets(req, res) {
     db.get_bets()
-        .then((orders) => res.status(200).send(orders))
+        .then((bets) => res.status(200).send(bets))
         .catch((err) => {
             console.log('Error', err);
             res.status(500).send({ 'error': 'Smth bad has happened.' });
